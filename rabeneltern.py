@@ -227,6 +227,28 @@ def plot_day_night(df, event):
     fig.autofmt_xdate()
     plt.legend(loc='upper right')
     plt.show()
+ 
+def get_sleeping_stats(df):
+    total_time = 0
+    filtered = df.loc[(df["Ereignis"]=="Einschlafen") | (df["Ereignis"]=="Aufwachen")]
+    inds = list(filtered.index)
+    if df.iloc[inds[0],2] != "Einschlafen":
+        inds.pop(0)
+    if df.iloc[inds[-1],2] != "Aufwachen":
+        inds.pop()
+    timestamps = [df.iloc[ind,1] for ind in inds]
+    while len(timestamps) != 0:
+        sleeptime = timestamps.pop(0)
+        waketime = timestamps.pop(0)
+        total_time += abs(waketime - sleeptime)
+    time_per_day = total_time/len(df.groupby("Datum"))
+    print("Gesamt: " + str(total_time//60) + " Stunden " + str(total_time % 60) \
+          + " Minuten verteilt auf " + str(len(df.groupby("Datum"))) + " Tage, also " \
+              + str(int(time_per_day//60)) + " Stunden " + str(int(time_per_day%60)) + " Minuten" \
+                  + " pro Tag.")
+    return total_time, time_per_day
+    
+    
     
 
 file = 'rabeneltern.csv'
@@ -239,8 +261,8 @@ dates = [("20.03.2020", "29.03.2020"), ("30.03.2020", "07.04.2020")]
 #fig,ax = plot_vals(df, colors, events)
 #fig, axs = plot_subplots(df, colors, events, dates)
 #stats = get_stats(df, "Aufwachen")   
-stats2 = get_stats(df, "Stillen", night=True)     
+#stats2 = get_stats(df, "Stillen", night=True)     
 events_plot = ["Stillen", "Aufwachen", "Einschlafen"]
 
 #plot_stats(df, events_plot)
-plot_day_night(df, "Stillen")
+#plot_day_night(df, "Stillen")
